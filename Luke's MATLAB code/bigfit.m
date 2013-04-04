@@ -1,3 +1,5 @@
+% hi
+
 function [fits lls] = bigfit(in1, out1, MINALPHA, MAXALPHA, N)
     fits = zeros(N,1);   
     lls = zeros(N,1);
