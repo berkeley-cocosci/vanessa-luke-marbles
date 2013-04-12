@@ -10,33 +10,39 @@ import marbles_data as md
 ################################################################################ 
 ### SPECIFY
 
-data = "m1"
+data = "m6"
 # "m1" = 1-item task, "m6" = 6-item task, "m1_normed", "m6_normed"
 draws = 10
 
-# don't change these values unless you wanna re-code the x-axis labelling
-# start = 0.1, stop = 20, divisions = 200
 # values for alpha
-alpha_start = 0.1
-alpha_stop = 20
-alpha_divisions = 200
+# start = 0, stop = 10, divisions = 201
+# real bestfit alpha lies + or - 0.05 from the returned bestfit alpha
+alpha_start = 0
+alpha_stop = 10
+alpha_divisions = 201
 alpha_range = np.linspace(alpha_start,alpha_stop,alpha_divisions)
 ar = alpha_range.tolist()
+del ar[0]
 
 # values for rho
-rho_start = 0.001
+# start = 0, stop = 1, divisions = 101
+# real bestfit alpha lies + or - 0.01 from the returned bestfit alpha
+rho_start = 0
 rho_stop = 1
-rho_divisions = 200
+rho_divisions = 101
 rho_range = np.linspace(rho_start,rho_stop,rho_divisions)
 rr = rho_range.tolist()
+del rr[0]
+
 
 ################################################################################ 
 ### PROGRAM LOOP
 
 all_fits = []
 
-for alpha in alpha_range:
-	for rho in rho_range:
+for alpha in ar:
+#for alpha in range(1,2): # when you want to get best-fit rho for a particular alpha
+	for rho in rr:
 	
 		fit = 0
 		if data == "m1":
@@ -57,8 +63,11 @@ for alpha in alpha_range:
 
 bestfit_index = all_fits.index(max(all_fits))
 
-bestfit_alpha = ar[bestfit_index/alpha_divisions]
-bestfit_rho = rr[bestfit_index-(alpha_divisions*(bestfit_index/alpha_divisions))]
+bestfit_alpha = ar[bestfit_index/len(rr)] # next rho every alpha_divisions
+bestfit_rho = rr[bestfit_index-((bestfit_index/len(rr))*len(rr))]
+
+#bestfit_alpha = ar[bestfit_index/len(ar)] # next alpha every alpha_divisions
+#bestfit_rho = rr[bestfit_index-((bestfit_index/len(ar))*len(ar))]
 
 print "bestfit alpha ~ " +str(bestfit_alpha)
 print "bestfit rho ~ " +str(bestfit_rho)
