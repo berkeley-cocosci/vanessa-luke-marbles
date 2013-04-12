@@ -37,14 +37,6 @@ divisions = 200
 alpha_range = np.linspace(start,stop,divisions)
 ar = alpha_range.tolist()
 
-# values for rho
-rho_start = 0.001
-rh0_stop = 1
-rho_divisions = 200
-rho_range = np.linspace(rho_start,rho_stop,rho_divisions)
-rr = rho_range.tolist()
-
-
 ################################################################################ 
 ### PROGRAM LOOP
 
@@ -70,11 +62,6 @@ for alpha in alpha_range:
 		model_matrix = mmm.create_MAP_Qmatrix(draws, alpha)
 	if model == "b":
 		model_matrix = mmm.create_binomial_Qmatrix(draws)
-	if model == "f":
-		for rho in rho_range:
-			model_matrix = mmm.create_MAP_filter_Qmatrix(draws, alpha, rho)
-			eLLN_filter_fit = loglikelihood.eLLN_two_matrices(data_matrix, model_matrix)
-			filter_fit.append(eLLN_filter_fit)
 	
 	if fitting == "loglike":
 		fit = loglikelihood.LL_two_matrices(data_matrix, model_matrix) # IDENTICAL to AlphaFit_plotter2.py method
@@ -95,8 +82,6 @@ for alpha in alpha_range:
 # TO DO: if KL, show min(y)
 x = fit_per_alpha
 
-if model == "f":
-	x = filter_fit # overwrites assignment above "x = fit_per_alpha"
 if fitting == "loglike":
 	max_y = max(x) # !!! if there are multiple maximums, it returns the first one, i.e the lowest alpha one!
 	max_eLLN = max(eLLN_fit_per_alpha)  
@@ -104,7 +89,6 @@ if fitting == "KLdiv":
 	min_y = min(x)
 	
 	
-
 if model == "s": mod = "sampler"
 if model == "m": mod = "MAP"
 if model == "b": mod = "drift"
@@ -117,8 +101,6 @@ if data == "m6_normed": dat = "6-item task (rows normalized)"
 py.plot(ar,x)
 py.xticks([ar[19],ar[39],ar[59],ar[79],ar[99],ar[119],ar[139],ar[159],ar[179],ar[199]], rotation=0)
 
-if model == "f":
-	py.title(mod +", "+str(dat) +"\nbest-fit alpha/rho ~ "+ str(alpha_range[x.index(max(x))]) + str(rho_range[x.index(max(x))]) +" accounts for " +str(max_y) +"% of the data")
 if fitting == "loglike":
 	py.title(mod +", "+str(dat) +"\nbest-fit alpha ~ "+ str(alpha_range[x.index(max(x))]) +" accounts for " +str(max_y) +"% of the data")
 if fitting == "KLdiv":
