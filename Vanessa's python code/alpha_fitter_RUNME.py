@@ -21,26 +21,36 @@ import marbles_data as md
 ### SPECIFY
 
 model = "m"
-# "s" = sampler, "m" = MAP, "b" = binomial/drift
-fitting = "KLdiv"
+# "s" = sampler, "m" = MAP, "b" = binomial/drift, "f" = Luke's MAP with filter model
+fitting = "loglike"
 # "loglike", "KLdiv"
-data = "m1_normed"
+data = "m1"
 # "m1" = 1-item task, "m6" = 6-item task, "m1_normed", "m6_normed"
 draws = 10
 
 # don't change these values unless you wanna re-code the x-axis labelling
 # start = 0.1, stop = 20, divisions = 200
+# values for alpha
 start = 0.1
 stop = 20
 divisions = 200
 alpha_range = np.linspace(start,stop,divisions)
 ar = alpha_range.tolist()
 
+# values for rho
+rho_start = 0.001
+rh0_stop = 1
+rho_divisions = 200
+rho_range = np.linspace(rho_start,rho_stop,rho_divisions)
+rr = rho_range.tolist()
+
 
 ################################################################################ 
 ### PROGRAM LOOP
 
+
 fit_per_alpha = []
+eLLN_fit_per_alpha = []
 for alpha in alpha_range:
 	
 	fit = 0
@@ -60,22 +70,40 @@ for alpha in alpha_range:
 		model_matrix = mmm.create_MAP_Qmatrix(draws, alpha)
 	if model == "b":
 		model_matrix = mmm.create_binomial_Qmatrix(draws)
+	if model == "f":
+		for rho in rho_range:
+			model_matrix = mmm.create_MAP_filter_Qmatrix(draws, alpha, rho)
+			eLLN_filter_fit = loglikelihood.eLLN_two_matrices(data_matrix, model_matrix)
+			filter_fit.append(eLLN_filter_fit)
 	
 	if fitting == "loglike":
-		fit = loglikelihood.LLN_two_matrices(data_matrix, model_matrix)
+		fit = loglikelihood.LL_two_matrices(data_matrix, model_matrix) # IDENTICAL to AlphaFit_plotter2.py method
+		#fit = loglikelihood.LLN_two_matrices(data_matrix, model_matrix)
+		
+		eLLN_fit = loglikelihood.eLLN_two_matrices(data_matrix, model_matrix)
+		eLLN_fit_per_alpha.append(eLLN_fit)
+		
+		fit_per_alpha.append(eLLN_fit)
 	if fitting == "KLdiv":
-		fit = KL_divergence.KL_two_matrices(data_matrix, model_matrix)
-	
-	fit_per_alpha.append(fit)
+		KL_fit = KL_divergence.KL_two_matrices(data_matrix, model_matrix)
+		fit_per_alpha.append(KL_fit)
 
 
 ################################################################################
 ### PLOT
 
 # TO DO: if KL, show min(y)
-
 x = fit_per_alpha
-max_y = max(x)  # !!! if there are multiple maximums, it returns the first one, i.e the lowest alpha one!
+
+if model == "f":
+	x = filter_fit # overwrites assignment above "x = fit_per_alpha"
+if fitting == "loglike":
+	max_y = max(x) # !!! if there are multiple maximums, it returns the first one, i.e the lowest alpha one!
+	max_eLLN = max(eLLN_fit_per_alpha)  
+if fitting == "KLdiv":
+	min_y = min(x)
+	
+	
 
 if model == "s": mod = "sampler"
 if model == "m": mod = "MAP"
@@ -88,6 +116,25 @@ if data == "m6_normed": dat = "6-item task (rows normalized)"
 	
 py.plot(ar,x)
 py.xticks([ar[19],ar[39],ar[59],ar[79],ar[99],ar[119],ar[139],ar[159],ar[179],ar[199]], rotation=0)
-py.title(mod +", "+str(dat) +"\nbest-fit alpha ~ "+ str(alpha_range[x.index(max(x))]) +" has log likelihood = " +str(max_y))
+
+if model == "f":
+	py.title(mod +", "+str(dat) +"\nbest-fit alpha/rho ~ "+ str(alpha_range[x.index(max(x))]) + str(rho_range[x.index(max(x))]) +" accounts for " +str(max_y) +"% of the data")
+if fitting == "loglike":
+	py.title(mod +", "+str(dat) +"\nbest-fit alpha ~ "+ str(alpha_range[x.index(max(x))]) +" accounts for " +str(max_y) +"% of the data")
+if fitting == "KLdiv":
+	py.title(mod +", "+str(dat) +"\nbest-fit alpha ~ "+ str(alpha_range[x.index(max(x))]) +" has KL divergence = " +str(min_y))
 	
 py.show()
+
+
+
+
+
+
+
+
+
+
+
+
+

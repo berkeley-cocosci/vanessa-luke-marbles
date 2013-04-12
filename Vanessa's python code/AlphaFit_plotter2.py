@@ -1,4 +1,4 @@
-# run with MarblesData.py
+# run with marbles_data.py
 # this is supposed to be a more efficient version of AlphaFit_plotter.py
 # this version includes the MAP model the binomial Qmatrix
 
@@ -8,7 +8,9 @@
 # plot_alphafit_population((0,1,2,3,4,5),M6_GC)
 # plot_alphafit_population((5,5,5,5,5,5),M6_all5050)
 # plot_alphafit_population((0,0,0,0,0,0),M6_allReg)
+
 # plot_alphafit_population(M1_ins_blue_counts,M1_outs_blue_counts)
+# plot_alphafit_population(M6_ins_marble1_counts,M6_outs_marble1_counts) # produces exact same fits as "plot_alphafit_population((0,1,2,3,4,5),M6_GC)" but with different rounding errors
 
 # plot_alphafit_population(M1_c2_ins,M1_c2_outs)
 # plot_alphafit_population(M1_c5_ins,M1_c5_outs)
@@ -130,6 +132,8 @@ def plot_alphafit_population(input_m0count,output_m0count):
 	print "percent fit = " +str(percent_fit)
 
 	py.show()
+	
+	return x
 
 def M1_and_M6_dataset_plotter(M1_ins_blue_counts,M1_outs_blue_counts,M6_GC):
 	M1 = alphafit_population(M1_ins_blue_counts,M1_outs_blue_counts)

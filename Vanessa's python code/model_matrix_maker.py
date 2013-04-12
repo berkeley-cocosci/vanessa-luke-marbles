@@ -37,6 +37,13 @@ def create_binomial_Qmatrix(draws):
 			matrix[row][column] = transition_probability_calculator_binomial(row,column,draws)
 	return matrix
 
+# Luke's filter model re-coded
+def create_MAP_filter_Qmatrix(draws, alpha, rho):
+	matrix = [[0]*(draws+1) for i in range(draws+1)]
+	for row in range(draws+1):
+		for column in range(draws+1):
+			matrix[row][column] = transition_probability_calculator_MAP_filter(row,column,alpha,rho,draws)
+	return matrix
 
 ### FORMAT OUTPUT FOR R
 def print_matrix_formatted_for_R(matrix):
@@ -70,6 +77,13 @@ def transition_probability_calculator_binomial(input_m0count,output_m0count,draw
 	right = (1- (input_m0count/10.0))**(draws-output_m0count)
 	return (left * float(middle) * float(right))
 
+def transition_probability_calculator_MAP_filter(input_m0count,output_m0count,alpha,rho,draws):
+	theta_substitute = ((rho*input_m0count) + (alpha/2.0)) / ((rho*draws) + alpha)
+	left = binomial_coefficient(draws,output_m0count)
+	middle = theta_substitute**output_m0count
+	right = (1- theta_substitute)**(draws-output_m0count)
+	return (left * float(middle) * float(right))
+
 _bc_table={}
 def binomial_coefficient(N, K):
     if str([N,K]) in _bc_table:
@@ -85,5 +99,8 @@ def binomial_coefficient(N, K):
             c = c / (i + 1)
         _bc_table[str([N,K])]=c
         return c
+
+def column(matrix, i):  # returns the column of a matrix
+    return [row[i] for row in matrix]
 
 ################################################################################
