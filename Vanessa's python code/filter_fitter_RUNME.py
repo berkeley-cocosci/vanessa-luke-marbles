@@ -10,7 +10,7 @@ import marbles_data as md
 ################################################################################ 
 ### SPECIFY
 
-data = "m1"
+data = "m6_normed"
 # "m1" = 1-item task, "m6" = 6-item task, "m1_normed", "m6_normed"
 draws = 10
 
@@ -28,8 +28,8 @@ del ar[0]
 # start = 0, stop = 1, divisions = 101
 # real bestfit alpha lies + or - 0.01 from the returned bestfit alpha
 rho_start = 0
-rho_stop = 10
-rho_divisions = 201
+rho_stop = 1
+rho_divisions = 101
 rho_range = np.linspace(rho_start,rho_stop,rho_divisions)
 rr = rho_range.tolist()
 del rr[0]
@@ -74,6 +74,7 @@ bestfit_alpha = ar[index_best_alpha]
 bestfit_rho = rr[index_best_rho]
 
 # make sure there aren't duplicate maximum values
+# not really reliable because all of the all_fits floats have rounding errors
 B = np.array(all_fits)
 first, next = B.argsort()[-2:][::-1]
 if first == next:
