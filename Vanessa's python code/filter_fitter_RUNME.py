@@ -10,7 +10,7 @@ import marbles_data as md
 ################################################################################ 
 ### SPECIFY
 
-data = "m6"
+data = "m1"
 # "m1" = 1-item task, "m6" = 6-item task, "m1_normed", "m6_normed"
 draws = 10
 
@@ -28,8 +28,8 @@ del ar[0]
 # start = 0, stop = 1, divisions = 101
 # real bestfit alpha lies + or - 0.01 from the returned bestfit alpha
 rho_start = 0
-rho_stop = 1
-rho_divisions = 101
+rho_stop = 10
+rho_divisions = 201
 rho_range = np.linspace(rho_start,rho_stop,rho_divisions)
 rr = rho_range.tolist()
 del rr[0]
@@ -59,18 +59,34 @@ for alpha in ar:
 		all_fits.append(fit)
 			
 ################################################################################
-### PLOT
+### ANALYZE
 
-bestfit_index = all_fits.index(max(all_fits))
+# create a matrix of fits per combination of alpha and rho
+# rows have the same alpha value
+# columns have the same rho value
+# M[i,j] = M[alpha value,rho value] = M[ar[i],rr[j]]
+A = np.array(all_fits)
+A.shape = (alpha_divisions-1,rho_divisions-1)
+M = np.mat(A.copy())
 
-bestfit_alpha = ar[bestfit_index/len(rr)] # next rho every alpha_divisions
-bestfit_rho = rr[bestfit_index-((bestfit_index/len(rr))*len(rr))]
+index_best_alpha, index_best_rho = np.unravel_index(M.argmax(), M.shape)
+bestfit_alpha = ar[index_best_alpha]
+bestfit_rho = rr[index_best_rho]
 
-#bestfit_alpha = ar[bestfit_index/len(ar)] # next alpha every alpha_divisions
-#bestfit_rho = rr[bestfit_index-((bestfit_index/len(ar))*len(ar))]
+# make sure there aren't duplicate maximum values
+B = np.array(all_fits)
+first, next = B.argsort()[-2:][::-1]
+if first == next:
+	print "duplicate maximum values exist!!!"
+else: print "maximum value is unique"
 
+# retrieve the percent fit
+percent_fit = B[B.argmax()]
+
+print "percent fit: " +str(percent_fit)
 print "bestfit alpha ~ " +str(bestfit_alpha)
 print "bestfit rho ~ " +str(bestfit_rho)
+
 
 			
 			
